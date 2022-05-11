@@ -1,0 +1,13 @@
+{
+	"compiler-id" : "GNU",
+	"dir-cur-bld" : "/Users/wenlewei/Code/Clion/volume_burgers/cmake-build-debug",
+	"dir-cur-src" : "/Users/wenlewei/Code/Clion/volume_burgers",
+	"dir-top-bld" : "/Users/wenlewei/Code/Clion/volume_burgers/cmake-build-debug",
+	"dir-top-src" : "/Users/wenlewei/Code/Clion/volume_burgers",
+	"include-dirs" : [],
+	"language" : "Fortran",
+	"linked-target-dirs" : [],
+	"module-dir" : "/Users/wenlewei/Code/Clion/volume_burgers/cmake-build-debug",
+	"submodule-ext" : ".smod",
+	"submodule-sep" : "@"
+}
