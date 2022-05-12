@@ -62,7 +62,7 @@ subroutine diffision(uold, j, diffision_data)
     real(kind=8)                    ::     diffision_data
     integer                         ::     j
     diffision_data = 1.0d0/12*uold(j-1) - 5.0d0/4*uold(j) + 5.0d0/4*uold(j+1) - 1.0d0/12*uold(j+2)
-    diffision_data = diffision_data/Re
+    diffision_data = diffision_data/(Re*dx)
 
 end subroutine diffision
 
@@ -105,12 +105,16 @@ program main
     
 ! initial numerical
     do j = 5, N+4
-        un(j) = cos(2.0d0*pi*(j-2.5d0))/(2*pi) + j - 2.5 - (cos(2.0d0*pi*(j-3.5d0))/(2*pi) + j - 3.5)
-        un(j) = un(j) / dx
-      !  write(*,*) (j-2.5)*dx, (j-3.5)*dx
+        un(j) = (-cos(2.0d0*pi*(j-3.5d0)*dx)/(2*pi) + cos(2.0d0*pi*(j-4.5d0)*dx)/(2*pi))/dx + 1.0d0
+        write(*,*) (j-3.5)*dx, (j-4.5)*dx
     end do
     call Boundary_value(un)
     uold = un
+    ! print u when t = 0
+    do j = 4, N+4
+        write(56, 101) t, (j-4)*dx, un(j) 
+    end do
+    ! third-order Runge-Kutta
     do it = 1, step
         t = t + dt
         
@@ -136,14 +140,16 @@ program main
         call Boundary_value(un)
         uold = un  
 
-        ! print
-        do j = 4, N+4
-            !write(55, 100) t, (j-4)*dx, u1(j) 
-            write(55, 100) u1(j), u2(j), un(j)     
-        end do
+        ! print u 
+        if (mod(it, 50) == 0) then
+            do j = 4, N+4
+                write(56, 101) t, (j-4)*dx, un(j) 
+                write(55, 100) u1(j), u2(j), un(j)     
+            end do
+        end if
     end do
 
     100  format(2x, 3f16.10) 
-
+    101  format(2x, 3f16.10)
 
 end program main
