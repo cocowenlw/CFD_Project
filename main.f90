@@ -1,12 +1,14 @@
 module global
     implicit none
     real(kind=8)                    ::     data    
-    real(kind=8)                    ::     dx, lu_value
+    real(kind=8)                    ::     dx, lu_value, Re
+    integer, parameter              ::     N = 200, L = 1
 contains   
 end module global
 
 ! Boundary value processing
 subroutine Boundary_value(u)
+    use global
     real(kind=8), dimension(1:N+7)  ::     u
     u(4) = u(N+4)
     u(3) = u(N+3)
@@ -23,14 +25,16 @@ subroutine Lu(uold, j, umax)
     real(kind=8)                    ::     flax_data, diffision_data, umax
     integer                         ::     j
     flax_data = 1.0d0
-    write(*,*) flax_data
+    ! write(*,*) flax_data
     call flax(uold, j, umax, flax_data)
-    write(*,*) flax_data
+    ! write(*,*) flax_data
 
     diffision_data = 1.0d0
-    write(*,*) diffision_data
+    ! write(*,*) diffision_data
     call diffision(uold, j, diffision_data)
-    write(*,*) diffision_data
+    ! write(*,*) diffision_data
+
+    lu_value = flax_data + diffision_data
 end subroutine Lu
 
    
@@ -47,16 +51,18 @@ subroutine flax(uold, j, umax, flax_data)
     umm = data
     call weno(uold(j+2), uold(j+1), uold(j), uold(j-1), uold(j-2))
     ump = data
-    flax1 = 1.0d0/2*((upm/2.0d0)**2+(upp/2.0d0)**2-umax*(upp-pm))
-    flax2 = 1.0d0/2*((umm/2.0d0)**2+(ump/2.0d0)**2-umax*(ump-mm))
+    flax1 = 1.0d0/2*((upm/2.0d0)**2+(upp/2.0d0)**2-umax*(upp-upm))
+    flax2 = 1.0d0/2*((umm/2.0d0)**2+(ump/2.0d0)**2-umax*(ump-umm))
     flax_data = -(flax1-flax2)/dx
 end subroutine flax
 
 subroutine diffision(uold, j, diffision_data)
+    use global
     real(kind=8), dimension(1:N+7)  ::     uold
     real(kind=8)                    ::     diffision_data
     integer                         ::     j
     diffision_data = 1.0d0/12*uold(j-1) - 5.0d0/4*uold(j) + 5.0d0/4*uold(j+1) - 1.0d0/12*uold(j+2)
+    diffision_data = diffision_data/Re
 
 end subroutine diffision
 
@@ -85,15 +91,17 @@ end subroutine weno
 program main
     use global
     implicit none
-    integer, parameter              ::     N = 200, L = 1
-    integer                         ::     j, it
+    integer                         ::     j, it, step
     real(kind=8), dimension(1:N+7)  ::     uold, un, u1, u2
     real(kind=8)                    ::     dt, t, pi, umax
 
+    Re = 200
     dx = 1.0d0*L/N
-    dt = 0.005d0
+    dt = 0.001d0
+    step = int(2/dt)+1
     pi = 4.0d0*atan(1.0d0)
     t  = 0.0d0
+
     
 ! initial numerical
     do j = 5, N+4
@@ -103,8 +111,9 @@ program main
     end do
     call Boundary_value(un)
     uold = un
-    write(*,*) data
-    do it = 1, 50
+    do it = 1, step
+        t = t + dt
+        
         umax = maxval(uold)
         do j = 5, N+4        
             call Lu(uold, j, umax)    
@@ -122,13 +131,19 @@ program main
         umax = maxval(u2)
         do j = 5, N+4        
             call Lu(u2, j, umax)    
-            un(j) = 1.0d0/3*uold(j) + 2.0d0/3*u2(j) + 2.0d0/3*dt*lu_value  
+            un(j) = 1.0d0/3*uold(j) + 2.0d0/3*u2(j) + 2.0d0/3*dt*lu_value             
         end do
-        call Boundary_value(u2)
+        call Boundary_value(un)
+        uold = un  
 
-        uold = un
-    
+        ! print
+        do j = 4, N+4
+            !write(55, 100) t, (j-4)*dx, u1(j) 
+            write(55, 100) u1(j), u2(j), un(j)     
+        end do
     end do
+
+    100  format(2x, 3f16.10) 
 
 
 end program main
