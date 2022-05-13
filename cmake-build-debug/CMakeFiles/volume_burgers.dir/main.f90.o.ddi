@@ -5,7 +5,13 @@
 		{
 			"outputs" : [],
 			"primary-output" : "CMakeFiles/volume_burgers.dir/main.f90.o",
-			"provides" : [],
+			"provides" : 
+			[
+				{
+					"compiled-module-path" : "global.mod",
+					"logical-name" : "global.mod"
+				}
+			],
 			"requires" : []
 		}
 	],

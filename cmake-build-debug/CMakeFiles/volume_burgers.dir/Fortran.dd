@@ -1,3 +1,4 @@
 ninja_dyndep_version = 1.0
-build CMakeFiles/volume_burgers.dir/main.f90.o: dyndep
+build CMakeFiles/volume_burgers.dir/main.f90.o | global.mod: dyndep
+  restat = 1
 

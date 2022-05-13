@@ -24,12 +24,11 @@ subroutine Lu(uold, j, umax)
     real(kind=8), dimension(1:N+7)  ::     uold
     real(kind=8)                    ::     flax_data, diffision_data, umax
     integer                         ::     j
-    flax_data = 1.0d0
+
     ! write(*,*) flax_data
     call flax(uold, j, umax, flax_data)
     ! write(*,*) flax_data
 
-    diffision_data = 1.0d0
     ! write(*,*) diffision_data
     call diffision(uold, j, diffision_data)
     ! write(*,*) diffision_data
@@ -59,10 +58,11 @@ end subroutine flax
 subroutine diffision(uold, j, diffision_data)
     use global
     real(kind=8), dimension(1:N+7)  ::     uold
-    real(kind=8)                    ::     diffision_data
+    real(kind=8)                    ::     diffision_data, diffision_plus, diffision_minals
     integer                         ::     j
-    diffision_data = 1.0d0/12*uold(j-1) - 5.0d0/4*uold(j) + 5.0d0/4*uold(j+1) - 1.0d0/12*uold(j+2)
-    diffision_data = diffision_data/(Re*dx)
+    diffision_plus   = 1.0d0/12*uold(j-1) - 5.0d0/4*uold(j) + 5.0d0/4*uold(j+1) - 1.0d0/12*uold(j+2)
+    diffision_minals = -11.0d0/12*uold(j-1) + 3.0d0/4*uold(j) + 1.0d0/4*uold(j+1) - 1.0d0/12*uold(j+2) 
+    diffision_data   = (diffision_plus - diffision_minals)/(Re*dx**2)
 
 end subroutine diffision
 
