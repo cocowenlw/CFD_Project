@@ -50,8 +50,8 @@ subroutine flax(uold, j, umax, flax_data)
     umm = data
     call weno(uold(j+2), uold(j+1), uold(j), uold(j-1), uold(j-2))
     ump = data
-    flax1 = 1.0d0/2*((upm/2.0d0)**2+(upp/2.0d0)**2-umax*(upp-upm))
-    flax2 = 1.0d0/2*((umm/2.0d0)**2+(ump/2.0d0)**2-umax*(ump-umm))
+    flax1 = 1.0d0/2*((upm**2/2.0d0)+(upp**2/2.0d0)-umax*(upp-upm))
+    flax2 = 1.0d0/2*((umm**2/2.0d0)+(ump**2/2.0d0)-umax*(ump-umm))
     flax_data = -(flax1-flax2)/dx
 end subroutine flax
 
@@ -141,7 +141,7 @@ program main
         uold = un  
 
         ! print u 
-        if (mod(it, 50) == 0) then
+        if (mod(it, 500) == 0) then
             do j = 4, N+4
                 write(56, 101) t, (j-4)*dx, un(j) 
                 write(55, 100) u1(j), u2(j), un(j)     
