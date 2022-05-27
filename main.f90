@@ -10,7 +10,6 @@ end module global
 subroutine Boundary_value(u)
     use global
     real(kind=8), dimension(1:N+7)  ::     u
-    u(4) = u(N+4)
     u(3) = u(N+3)
     u(2) = u(N+2)
     u(1) = u(N+1)
@@ -109,6 +108,7 @@ program main
         write(*,*) (j-3.5)*dx, (j-4.5)*dx
     end do
     call Boundary_value(un)
+    un(4) = un(N+4)
     uold = un
     ! print u when t = 0
     do j = 4, N+4
@@ -119,21 +119,21 @@ program main
         t = t + dt
         
         umax = maxval(uold)
-        do j = 5, N+4        
+        do j = 4, N+4
             call Lu(uold, j, umax)    
             u1(j) = uold(j) + dt*lu_value  
         end do
         call Boundary_value(u1)
 
         umax = maxval(u1)
-        do j = 5, N+4        
+        do j = 4, N+4
             call Lu(u1, j, umax)    
             u2(j) = 3.0d0/4*uold(j) + 1.0d0/4*u1(j) + 1.0d0/4*dt*lu_value  
         end do
         call Boundary_value(u2)
 
         umax = maxval(u2)
-        do j = 5, N+4        
+        do j = 4, N+4
             call Lu(u2, j, umax)    
             un(j) = 1.0d0/3*uold(j) + 2.0d0/3*u2(j) + 2.0d0/3*dt*lu_value             
         end do

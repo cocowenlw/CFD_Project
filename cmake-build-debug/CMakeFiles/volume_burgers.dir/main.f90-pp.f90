@@ -15,7 +15,6 @@ end module global
 subroutine Boundary_value(u)
     use global
     real(kind=8), dimension(1:N+7)  ::     u
-    u(4) = u(N+4)
     u(3) = u(N+3)
     u(2) = u(N+2)
     u(1) = u(N+1)
@@ -29,7 +28,7 @@ subroutine Lu(uold, j, umax)
     real(kind=8), dimension(1:N+7)  ::     uold
     real(kind=8)                    ::     flax_data, diffision_data, umax
     integer                         ::     j
-    
+
     ! write(*,*) flax_data
     call flax(uold, j, umax, flax_data)
     ! write(*,*) flax_data
@@ -55,8 +54,8 @@ subroutine flax(uold, j, umax, flax_data)
     umm = data
     call weno(uold(j+2), uold(j+1), uold(j), uold(j-1), uold(j-2))
     ump = data
-    flax1 = 1.0d0/2*((upm/2.0d0)**2+(upp/2.0d0)**2-umax*(upp-upm))
-    flax2 = 1.0d0/2*((umm/2.0d0)**2+(ump/2.0d0)**2-umax*(ump-umm))
+    flax1 = 1.0d0/2*((upm**2/2.0d0)+(upp**2/2.0d0)-umax*(upp-upm))
+    flax2 = 1.0d0/2*((umm**2/2.0d0)+(ump**2/2.0d0)-umax*(ump-umm))
     flax_data = -(flax1-flax2)/dx
 end subroutine flax
 
@@ -114,6 +113,7 @@ program main
         write(*,*) (j-3.5)*dx, (j-4.5)*dx
     end do
     call Boundary_value(un)
+    un(4) = un(N+4)
     uold = un
     ! print u when t = 0
     do j = 4, N+4
@@ -124,21 +124,21 @@ program main
         t = t + dt
         
         umax = maxval(uold)
-        do j = 5, N+4        
+        do j = 4, N+4
             call Lu(uold, j, umax)    
             u1(j) = uold(j) + dt*lu_value  
         end do
         call Boundary_value(u1)
 
         umax = maxval(u1)
-        do j = 5, N+4        
+        do j = 4, N+4
             call Lu(u1, j, umax)    
             u2(j) = 3.0d0/4*uold(j) + 1.0d0/4*u1(j) + 1.0d0/4*dt*lu_value  
         end do
         call Boundary_value(u2)
 
         umax = maxval(u2)
-        do j = 5, N+4        
+        do j = 4, N+4
             call Lu(u2, j, umax)    
             un(j) = 1.0d0/3*uold(j) + 2.0d0/3*u2(j) + 2.0d0/3*dt*lu_value             
         end do
@@ -146,7 +146,7 @@ program main
         uold = un  
 
         ! print u 
-        if (mod(it, 50) == 0) then
+        if (mod(it, 500) == 0) then
             do j = 4, N+4
                 write(56, 101) t, (j-4)*dx, un(j) 
                 write(55, 100) u1(j), u2(j), un(j)     
